@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GIET Photo Portal</title>
+  <style>
+    :root{
+      --glass: rgba(255,255,255,.08);
+      --glass-strong: rgba(255,255,255,.18);
+      --text: #f7f7fb;
+      --shadow: 0 20px 50px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; height:100vh; display:grid; place-items:center;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      color:var(--text);
+      background: url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2400&auto=format&fit=crop') center/cover no-repeat;
+    }
+    .stack{text-align:center; display:flex; flex-direction:column; gap:20px; align-items:center}
+    h1{margin:0; font-weight:800; font-size:clamp(26px,4vw,44px)}
+    .card{
+      padding:28px; border-radius:24px; max-width:520px; width:92%;
+      background: linear-gradient(180deg, var(--glass-strong), var(--glass));
+      backdrop-filter: blur(16px) saturate(120%);
+      -webkit-backdrop-filter: blur(16px) saturate(120%);
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.25);
+    }
+    form{display:flex; flex-direction:column; gap:14px; align-items:center}
+    label{font-weight:800}
+    input{
+      padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.35);
+      background:rgba(255,255,255,.15); color:white; font-weight:600; font-size:16px;
+    }
+    button{
+      padding:12px 20px; border-radius:14px; border:0; cursor:pointer;
+      font-weight:900; font-size:16px; text-transform:uppercase;
+      background: linear-gradient(135deg, #ffffff, #bfc8ff 45%, #e9ecff);
+      color:#0b0d16;
+    }
+    #photo-container{margin-top:20px; display:none; flex-direction:column; gap:10px; align-items:center}
+    #photo-container img{max-width:300px; border-radius:16px; box-shadow:0 10px 20px rgba(0,0,0,.4)}
+    a.download-btn{
+      text-decoration:none; padding:10px 18px; border-radius:14px;
+      background:linear-gradient(135deg,#fff,#bfc8ff 45%,#e9ecff);
+      color:#0b0d16; font-weight:700;
+    }
+  </style>
+</head>
+<body>
+  <div class="stack">
+    <h1>Welcome to <strong>GIET Photo Portal</strong></h1>
+
+    <div class="card">
+      <form id="lookupForm">
+        <label for="roll">Enter Roll No</label>
+        <input id="roll" type="text" placeholder="e.g., 25CSE167" required />
+        <button type="submit">GET</button>
+      </form>
+
+      <div id="photo-container">
+        <img id="student-photo" src="" alt="Student Photo" />
+        <a id="download-link" class="download-btn" download="student_photo.jpg">Download</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadData() {
+      const res = await fetch("data.json");
+      return res.json();
+    }
+
+    document.getElementById("lookupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const roll = document.getElementById("roll").value.trim();
+      const data = await loadData();
+      if(data[roll]){
+        const photo = document.getElementById("student-photo");
+        const container = document.getElementById("photo-container");
+        const link = document.getElementById("download-link");
+
+        photo.src = data[roll];
+        link.href = data[roll];
+
+        container.style.display = "flex";
+      } else {
+        alert("No photo found for Roll No: " + roll);
+      }
+    });
+  </script>
+</body>
+</html>
