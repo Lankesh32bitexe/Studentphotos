@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GIET Photo Portal</title>
+  <title>QDET Photo Portal</title>
   <style>
     :root{
       --glass: rgba(255,255,255,.08);
@@ -55,12 +55,12 @@
     <div class="card">
       <form id="lookupForm">
         <label for="roll">Enter Roll No</label>
-        <input id="roll" type="text" placeholder="e.g., 00CSE000" required />
+        <input id="roll" type="text" placeholder="e.g., 00ABC000" required />
         <button type="submit">GET</button>
       </form>
 
       <div id="photo-container">
-        <img id="student-photo" src="" alt="Photo Not Found,Check Roll.No" />
+        <img id="student-photo" src="" alt="Photo Not Found, Check Roll.No" />
         <a id="download-link" class="download-btn" download="student_photo.jpg">Download</a>
       </div>
     </div>
@@ -68,25 +68,36 @@
 
   <script>
     async function loadData() {
-      const res = await fetch("data.json");
+      const res = await fetch("data.json", { cache: "no-store" });
       return res.json();
     }
 
     document.getElementById("lookupForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const roll = document.getElementById("roll").value.trim();
+
+      // normalize: remove spaces + make lowercase (so 25 CSE 167 / 25cSe167 all work)
+      const roll = document.getElementById("roll").value.replace(/\s+/g, "").toLowerCase();
+
       const data = await loadData();
-      if(data[roll]){
-        const photo = document.getElementById("student-photo");
-        const container = document.getElementById("photo-container");
-        const link = document.getElementById("download-link");
 
-        photo.src = data[roll];
-        link.href = data[roll];
+      // build a lowercase-key map from data.json (without changing your JSON file)
+      const lcMap = Object.fromEntries(
+        Object.entries(data).map(([k, v]) => [String(k).replace(/\s+/g, "").toLowerCase(), v])
+      );
 
+      const photoUrl = lcMap[roll];
+
+      const photo = document.getElementById("student-photo");
+      const container = document.getElementById("photo-container");
+      const link = document.getElementById("download-link");
+
+      if (photoUrl) {
+        photo.src = photoUrl;
+        link.href = photoUrl;
         container.style.display = "flex";
       } else {
-        alert("No photo found for Roll No: " + roll);
+        container.style.display = "none";
+        alert("Photo Not Found, Check Roll.No");
       }
     });
   </script>
