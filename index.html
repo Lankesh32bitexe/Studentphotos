@@ -1,93 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GIET Photo Portal</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: url('https://images.unsplash.com/photo-1503264116251-35a269479413') no-repeat center center fixed;
-      background-size: cover;
-      font-family: Arial, sans-serif;
-      text-align: center;
+    :root{
+      --glass: rgba(255,255,255,.08);
+      --glass-strong: rgba(255,255,255,.18);
+      --text: #f7f7fb;
+      --shadow: 0 20px 50px rgba(0,0,0,.45);
     }
-
-    .container {
-      margin-top: 50px;
+    *{box-sizing:border-box}
+    body{
+      margin:0; height:100vh; display:grid; place-items:center;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      color:var(--text);
+      background: url('https://www.giet.edu/wp-content/uploads/2021/01/campus-overview-on-hill.jpg') center/cover no-repeat;
     }
-
-    .glass-box {
-      background: rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 20px;
-      display: inline-block;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    .stack{text-align:center; display:flex; flex-direction:column; gap:20px; align-items:center}
+    h1{margin:0; font-weight:800; font-size:clamp(26px,4vw,44px)}
+    .card{
+      padding:28px; border-radius:24px; max-width:520px; width:92%;
+      background: linear-gradient(180deg, var(--glass-strong), var(--glass));
+      backdrop-filter: blur(16px) saturate(120%);
+      -webkit-backdrop-filter: blur(16px) saturate(120%);
+      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.25);
     }
-
-    input {
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      width: 200px;
-      margin-bottom: 10px;
+    form{display:flex; flex-direction:column; gap:14px; align-items:center}
+    label{font-weight:800}
+    input{
+      padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.35);
+      background:rgba(255,255,255,.15); color:white; font-weight:600; font-size:16px;
     }
-
-    button {
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      background: #fff;
-      cursor: pointer;
+    button{
+      padding:12px 20px; border-radius:14px; border:0; cursor:pointer;
+      font-weight:900; font-size:16px; text-transform:uppercase;
+      background: linear-gradient(135deg, #ffffff, #bfc8ff 45%, #e9ecff);
+      color:#0b0d16;
     }
-
-    img {
-      margin-top: 15px;
-      width: 200px;
-      border-radius: 15px;
-    }
-
-    /* Developer Section */
-    .developer-section {
-      margin-top: 20px;
-      color: black;
-    }
-
-    .developer-section p {
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .social-icons a {
-      color: black;
-      font-size: 30px;
-      margin: 0 10px;
-      transition: transform 0.2s;
-    }
-
-    .social-icons a:hover {
-      transform: scale(1.2);
+    #photo-container{margin-top:20px; display:none; flex-direction:column; gap:10px; align-items:center}
+    #photo-container img{max-width:300px; border-radius:16px; box-shadow:0 10px 20px rgba(0,0,0,.4)}
+    a.download-btn{
+      text-decoration:none; padding:10px 18px; border-radius:14px;
+      background:linear-gradient(135deg,#fff,#bfc8ff 45%,#e9ecff);
+      color:#0b0d16; font-weight:700;
     }
   </style>
 </head>
 <body>
-  <h1>Welcome to GIET Photo Portal</h1>
+  <div class="stack">
+    <h1>Welcome to <strong>GIET Photo Portal</strong></h1>
 
-  <div class="container">
-    <div class="glass-box">
-      <h3>Enter Roll No</h3>
-      <input type="text" id="rollNo" placeholder="00ABC000">
-      <br>
-      <button onclick="getPhoto()">GET</button>
-      <br>
-      <img id="studentPhoto" src="" alt="Photo will appear here">
-      <br>
-      <a id="downloadLink" download><button>Download</button></a>
+    <div class="card">
+      <form id="lookupForm">
+        <label for="roll">Enter Roll No</label>
+        <input id="roll" type="text" placeholder="e.g., 00ABC000" required />
+        <button type="submit">GET</button>
+      </form>
 
-      <!-- Developer Section -->
+      <div id="photo-container">
+        <img id="student-photo" src="" alt="Photo Not Found, Check Roll.No" />
+        <a id="download-link" class="download-btn" download="student_photo.jpg">Download</a>
+      </div>
+    </div>
+  </div>
+ <!-- Developer Section -->
       <div class="developer-section">
         <p>Developer</p>
         <div class="social-icons">
@@ -102,22 +80,41 @@
   </div>
 
   <script>
-    function getPhoto() {
-      const rollNo = document.getElementById("rollNo").value.toLowerCase(); 
-      const photo = document.getElementById("studentPhoto");
-      const downloadLink = document.getElementById("downloadLink");
 
-      const fileName = rollNo + ".jpg";
-      const imageUrl = "https://raw.githubusercontent.com/Lankesh32bitexe/Studentphotos/main/" + fileName;
-
-      photo.src = imageUrl;
-      photo.onerror = function () {
-        photo.src = "";
-        photo.alt = "Photo Not Found, Check Roll No";
-      };
-
-      downloadLink.href = imageUrl;
+  <script>
+    async function loadData() {
+      const res = await fetch("data.json", { cache: "no-store" });
+      return res.json();
     }
+
+    document.getElementById("lookupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // normalize: remove spaces + make lowercase (so 25 CSE 167 / 25cSe167 all work)
+      const roll = document.getElementById("roll").value.replace(/\s+/g, "").toLowerCase();
+
+      const data = await loadData();
+
+      // build a lowercase-key map from data.json (without changing your JSON file)
+      const lcMap = Object.fromEntries(
+        Object.entries(data).map(([k, v]) => [String(k).replace(/\s+/g, "").toLowerCase(), v])
+      );
+
+      const photoUrl = lcMap[roll];
+
+      const photo = document.getElementById("student-photo");
+      const container = document.getElementById("photo-container");
+      const link = document.getElementById("download-link");
+
+      if (photoUrl) {
+        photo.src = photoUrl;
+        link.href = photoUrl;
+        container.style.display = "flex";
+      } else {
+        container.style.display = "none";
+        alert("Photo Not Found, Check Roll.No");
+      }
+    });
   </script>
 </body>
 </html>
