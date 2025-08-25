@@ -6,45 +6,110 @@
   <title>GIET Photo Portal</title>
   <style>
     :root{
+      --bg-image: url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=2400&auto=format&fit=crop'); /* Replace with your image later */
       --glass: rgba(255,255,255,.08);
       --glass-strong: rgba(255,255,255,.18);
+      --border: rgba(255,255,255,.35);
       --text: #f7f7fb;
+      --subtle: #dbe0ff;
+      --accent: #a2b5ff;
       --shadow: 0 20px 50px rgba(0,0,0,.45);
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
-      margin:0; height:100vh; display:grid; place-items:center;
-      font-family: ui-sans-serif, system-ui, sans-serif;
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
       color:var(--text);
-      background: url('https://i.ytimg.com/vi/tIZ7_tY6l7s/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDmr9BID1BK3mw_JHU9msv6RXfMLg') center/cover no-repeat;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(255,255,255,.08), transparent 60%),
+                  radial-gradient(1000px 800px at 90% 20%, rgba(156, 163, 255,.15), transparent 55%),
+                  #0b0d16;
+      position:relative;
+      overflow:hidden;
     }
-    .stack{text-align:center; display:flex; flex-direction:column; gap:20px; align-items:center}
-    h1{margin:0; font-weight:800; font-size:clamp(26px,4vw,44px)}
+    body::before{
+      content:""; position:fixed; inset:0; z-index:-2;
+      background-image: var(--bg-image);
+      background-size:cover; background-position:center; filter:contrast(1.05) saturate(1.05) brightness(.8);
+      transform:scale(1.02);
+    }
+    body::after{
+      content:""; position:fixed; inset:-5%; z-index:-1; pointer-events:none;
+      background: radial-gradient(60% 50% at 50% 45%, transparent 0%, transparent 55%, rgba(0,0,0,.45) 100%);
+    }
+
+    /* ---------- Layout ---------- */
+    .wrap{min-height:100%; display:grid; place-items:center; padding:32px}
+    .stack{display:flex; flex-direction:column; gap:22px; align-items:center; text-align:center}
+
+    /* ---------- Heading ---------- */
+    h1{
+      margin:0; font-weight:800; letter-spacing:.3px; line-height:1.1;
+      font-size: clamp(28px, 4vw, 44px);
+      text-shadow: 0 2px 8px rgba(0,0,0,.35);
+    }
+    .sub{opacity:.9; font-weight:700; letter-spacing:.2px}
+
+    /* ---------- Glass Card (metallic) ---------- */
     .card{
-      padding:28px; border-radius:24px; max-width:520px; width:92%;
+      position:relative;
+      margin: 0 auto; /* Center align horizontally */
+      width:min(560px, 92vw);
+      padding:28px 26px 30px;
+      border-radius:24px;
       background: linear-gradient(180deg, var(--glass-strong), var(--glass));
       backdrop-filter: blur(16px) saturate(120%);
       -webkit-backdrop-filter: blur(16px) saturate(120%);
-      box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,.25);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,.22);
+      overflow:hidden;
     }
-    form{display:flex; flex-direction:column; gap:14px; align-items:center}
-    label{font-weight:800}
-    input{
-      padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.35);
-      background:rgba(255,255,255,.15); color:white; font-weight:600; font-size:16px;
+    .card::before{
+      content:""; position:absolute; inset:-1px; border-radius:inherit; pointer-events:none;
+      background: linear-gradient(135deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 35%, rgba(255,255,255,.25) 70%, rgba(255,255,255,0) 100%);
+      mix-blend-mode: screen; opacity:.45; filter: blur(10px);
+      animation: sweep 5s linear infinite;
     }
+    @keyframes sweep{0%{transform:translateX(-40%) translateY(-20%) rotate(0deg)}100%{transform:translateX(40%) translateY(20%) rotate(0deg)}}
+
+    .card::after{
+      content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none;
+      background:
+        linear-gradient(0deg, rgba(255,255,255,.25), rgba(255,255,255,0)) top/100% 2px no-repeat,
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.18)) bottom/100% 8px no-repeat;
+    }
+
+    /* ---------- Form ---------- */
+    form{display:flex; flex-direction:column; gap:16px; align-items:center}
+    label{font-weight:800; font-size:clamp(16px, 2.6vw, 22px)}
+    .row{display:flex; gap:12px; width:100%; justify-content:center}
+
+    input[type="text"]{
+      flex:1; min-width:220px; max-width:340px;
+      padding:14px 16px; border-radius:14px; outline:none;
+      border:1px solid rgba(255,255,255,.35);
+      background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.12));
+      color:var(--text); font-weight:700; font-size:16px; letter-spacing:.5px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,.25);
+    }
+    input::placeholder{color:#e9ecffcc; font-weight:600}
+
     button{
-      padding:12px 20px; border-radius:14px; border:0; cursor:pointer;
-      font-weight:900; font-size:16px; text-transform:uppercase;
-      background: linear-gradient(135deg, #ffffff, #bfc8ff 45%, #e9ecff);
+      padding:14px 22px; border-radius:14px; border:0; cursor:pointer;
+      font-weight:900; letter-spacing:.6px; font-size:16px; text-transform:uppercase;
       color:#0b0d16;
+      background: linear-gradient(135deg, #ffffff, #bfc8ff 45%, #e9ecff);
+      box-shadow: 0 10px 25px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.65);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
     }
-    #photo-container{margin-top:20px; display:none; flex-direction:column; gap:10px; align-items:center}
-    #photo-container img{max-width:300px; border-radius:16px; box-shadow:0 10px 20px rgba(0,0,0,.4)}
-    a.download-btn{
-      text-decoration:none; padding:10px 18px; border-radius:14px;
-      background:linear-gradient(135deg,#fff,#bfc8ff 45%,#e9ecff);
-      color:#0b0d16; font-weight:700;
+    button:hover{transform: translateY(-1px); filter:brightness(1.05)}
+    button:active{transform: translateY(1px); box-shadow: 0 6px 16px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.65)}
+
+    .hint{font-size:12px; opacity:.8}
+
+    @media (max-width:420px){
+      .card{padding:24px}
     }
   </style>
 </head>
